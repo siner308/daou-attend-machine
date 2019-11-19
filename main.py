@@ -2,15 +2,7 @@ import datetime
 import time
 import requests
 from selenium import webdriver
-
-
-TIMEOUT = 5
-USERNAME = 'username'
-PASSWORD = 'password'
-DRIVER_PATH = 'path of chromedriver'
-GW_URL = 'groupware url'
-ATTEND_URL = GW_URL + '/app/home'
-LOGIN_URL = GW_URL + '/login'
+from env import GW_URL, DRIVER_PATH, USERNAME, PASSWORD
 
 
 class AttendMachine:
@@ -18,13 +10,15 @@ class AttendMachine:
         print('Initializing attend machine...')
         self.is_connected = False
         self.driver = None
+        self.attend_url = GW_URL + '/app/home'
+        self.login_url = GW_URL + '/login'
 
     def check_internet(self):
         print('Checking internet...')
         try:
-            _ = requests.get(LOGIN_URL, timeout=TIMEOUT)
+            _ = requests.get(self.login_url, timeout=5)
             self.is_connected = True
-            print('Connected.')
+            print('Success.')
             return True
         except requests.ConnectionError:
             print("Internet connection is bad...")
@@ -35,7 +29,7 @@ class AttendMachine:
             print('Waiting connection')
             time.sleep(1)
 
-        self.driver.get(LOGIN_URL)
+        self.driver.get(self.login_url)
 
         cnt = 0
         while self.driver.title != '로그인' \
@@ -53,7 +47,7 @@ class AttendMachine:
 
     def get_attend_page(self):
         print('Connecting to attend page...')
-        self.driver.get(ATTEND_URL)
+        self.driver.get(self.attend_url)
 
         cnt = 0
         while str(self.driver.title).find('DaouOffice') == -1:
